@@ -1,0 +1,114 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<pthread.h>
+#include<stdbool.h>
+
+//variáveis globais que serão utilizadas
+float *mat1;
+float *mat2;
+float *sai;
+int nthreads; //numero de threads
+int *id; //identificador
+int dim; //dimensao da matriz
+
+//Função que será executada pelas threads
+void * multmatriz(void * arg){
+    int id = *(int*) arg;
+    printf("Thread %d\n",id+1);
+    for(int i=id;i<dim;i+=nthreads){
+        for(int j=0;j<dim;j++){
+            for(int k=0;k<dim;k++){
+                sai[i*dim+j]+=mat1[i*dim+k]*mat2[i*dim+k];
+            }
+    }
+    }
+    pthread_exit(NULL);
+}
+//Função utilizando booleano para testar a corretude do programa
+bool corretude(dim){
+    float c = dim; //variável utilizada para testar a corretude
+    for(int i=0;i<dim*dim;i++){
+        if(sai[i]!=c){
+            return false;
+        }
+    }
+    return true;
+}
+
+int main(int argc , char* argv[]){
+    pthread_t *tid;
+    //Garantindo que a entrada recebida seja correta
+    if(argc<3){
+        puts("A entrada deve ser do tipo:  ./matriz <dimensao da matriz> <numero de threads>");
+        return 1;
+    }
+    
+    //Guardando o numero de threads e a dimensao escolhidas
+    dim = atoi(argv[1]);
+    nthreads = atoi(argv[2]);
+    //Garantindo que o numero de threads nao sera maior que a dimensao da matriz
+    if (nthreads>dim){
+        nthreads=dim;
+    }
+    //Alocação da memoria para os ponteiros
+    mat1  = (float *) malloc(sizeof(float)*dim*dim);
+    if (mat1==NULL){
+        printf("ERRO--malloc\n");
+        return 2;}
+    mat2 = (float *) malloc(sizeof(float)*dim*dim);
+    if (mat2==NULL){
+        printf("ERRO--malloc\n");
+        return 2;
+    }
+    sai = (float *) malloc(sizeof(float)*dim*dim);
+    if (sai==NULL){
+        printf("Erro--malloc\n");
+        return 2;
+    }
+    //Preenchimento dos elementos de forma sequencial
+    for(int i=0;i<dim;i++){
+        for(int j=0;j<dim;j++){
+            mat1[i*dim+j]=1;
+            mat2[i*dim+j]=1;
+            sai[i*dim+j]=0;
+        }
+    }
+    //Alocação dos ponteiros referentes as threads
+    tid = (pthread_t*) malloc(sizeof(pthread_t)*nthreads);
+    if (tid==NULL){
+        puts("Erro--malloc\n");
+        return 2;
+    }
+    id = (int *) malloc(sizeof(int)*nthreads);
+    if (id==NULL){
+        puts("Erro--malloc\n");
+        return 2;
+    }
+    //Criando as threads
+    for(int i=0;i<nthreads;i++){
+        id[i]=i;
+        if(pthread_create(tid+i,NULL,multmatriz,(void*)&id[i])){
+            puts("Erro--pthread_create");
+            return 3; 
+       }
+    }
+    //Aguardando o termino das threads
+    for(int i=0;i<nthreads;i++){
+        pthread_join(*(tid+i),NULL);
+    }
+    //Teste de corretude 
+    if(corretude(dim)){
+        printf("A matriz de saida esta correta");
+    }
+    else{
+        printf("A matriz de saida esta incorreta");
+        return 4;
+    }
+    //Liberação de memória
+    free (mat1);
+    free (mat2);
+    free (sai);
+    free (tid);
+    free (id);
+    return 0;
+}
