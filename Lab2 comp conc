@@ -112,3 +112,59 @@ int main(int argc , char* argv[]){
     free (id);
     return 0;
 }
+
+//segue abaixo o código utilizado para fazer de maneira sequencial
+/*#include<stdio.h>
+#include<stdlib.h>
+
+int main(int argc , char* argv[]){
+    float* mat1;
+    float* mat2;
+    float* sai;
+    int dim;
+    //Garantindo que a entrada recebida seja correta
+    if(argc<2){
+        puts("A entrada deve ser do tipo:  ./matriz <dimensao da matriz>");
+        return 1;
+    }
+    
+    //Guardando a dimensao escolhidas
+    dim = atoi(argv[1]);
+    
+    //Alocação da memoria para os ponteiros
+    mat1  = (float *) malloc(sizeof(float)*dim*dim);
+    if (mat1==NULL){
+        printf("ERRO--malloc\n");
+        return 2;}
+    mat2 = (float *) malloc(sizeof(float)*dim*dim);
+    if (mat2==NULL){
+        printf("ERRO--malloc\n");
+        return 2;
+    }
+    sai = (float *) malloc(sizeof(float)*dim*dim);
+    if (sai==NULL){
+        printf("Erro--malloc\n");
+        return 2;
+    }
+    //Preenchimento dos elementos de forma sequencial
+    for(int i=0;i<dim;i++){
+        for(int j=0;j<dim;j++){
+            mat1[i*dim+j]=1;
+            mat2[i*dim+j]=1;
+            sai[i*dim+j]=0;
+        }
+    }
+    //Calculo matriz
+    for(int i=0;i<dim;i++){
+        for(int j=0;j<dim;j++){
+            for(int k=0;k<dim;k++){
+                sai[i*dim+j]+=mat1[i*dim+k]*mat2[i*dim+k];
+            }
+        }
+    }
+    //Liberação de memória
+    free (mat1);
+    free (mat2);
+    free (sai);
+    return 0;
+}*/
